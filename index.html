@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f172a">
+<title>Haltungs-Training</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--ink:#f8fafc;--mut:#94a3b8;--acc:#3b82f6;--ok:#22c55e;--warn:#f59e0b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Lato,Arial,sans-serif}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.screen{display:none;flex-direction:column;min-height:100vh;min-height:100dvh;max-width:560px;margin:0 auto;padding:14px 16px 18px}
+.screen.on{display:flex}
+h1{font-size:28px;margin:6px 0 2px} .sub{color:var(--mut);margin:0 0 14px;font-size:15px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.seg button{height:56px;border-radius:14px;border:2px solid #334155;background:var(--card);color:var(--ink);font-size:17px;font-weight:700}
+.seg button.sel{border-color:var(--acc);background:#1d4ed8}
+.wkinfo{color:var(--mut);font-size:14px;min-height:38px;margin:4px 0 10px}
+.row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:14px;padding:12px 14px;margin:6px 0;min-height:58px;font-size:16px}
+.sw{position:relative;width:58px;height:34px;flex:none}
+.sw input{opacity:0;width:100%;height:100%;position:absolute;margin:0;z-index:2}
+.sw span{position:absolute;inset:0;border-radius:34px;background:#475569;transition:.2s}
+.sw span:after{content:"";position:absolute;width:26px;height:26px;left:4px;top:4px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--ok)} .sw input:checked+span:after{left:28px}
+.list{margin:10px 0 0;padding:0;list-style:none;font-size:14.5px;color:#cbd5e1}
+.list li{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid #1e293b}
+.play{margin-top:auto;height:84px;border-radius:22px;border:0;background:var(--ok);color:#052e16;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px}
+.total{text-align:center;color:var(--mut);margin-top:8px;font-size:14px}
+/* run screen */
+.top{display:flex;align-items:center;gap:10px}
+.top .lbl{flex:1;font-size:14px;color:var(--mut);font-weight:600}
+.icon{width:48px;height:48px;border-radius:14px;border:0;background:var(--card);color:var(--ink);font-size:22px;display:flex;align-items:center;justify-content:center}
+.bar{height:6px;background:#1e293b;border-radius:6px;overflow:hidden;margin:8px 0 10px}
+.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.media{position:relative;border-radius:18px;overflow:hidden;background:#e5e7eb;aspect-ratio:4/3}
+.media img{width:100%;height:100%;object-fit:cover;display:block}
+.media img.flip{transform:scaleX(-1)}
+.badge{position:absolute;left:10px;top:10px;background:rgba(15,23,42,.82);color:#fff;font-weight:800;font-size:15px;padding:6px 12px;border-radius:999px}
+.badge.prep{background:var(--warn);color:#1c1917}
+.name{font-size:25px;font-weight:800;margin:12px 0 2px;line-height:1.15}
+.side{font-size:17px;color:#fbbf24;font-weight:700;min-height:22px}
+.cue{font-size:16px;color:#cbd5e1;margin:4px 0 0;line-height:1.35;min-height:44px}
+.clock{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
+.big{font-size:96px;font-weight:800;line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-2px}
+.big.last{color:#f87171}
+.rep{text-align:right}
+.rep .n{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.rep .ph{font-size:20px;color:#93c5fd;font-weight:700;min-height:26px}
+.sbar{height:10px;background:#1e293b;border-radius:10px;overflow:hidden;margin:10px 0 0}
+.sbar i{display:block;height:100%;width:0;background:var(--ok);transition:width .1s linear}
+.sbar.prep i{background:var(--warn)}
+.ctr{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:10px;margin-top:auto;padding-top:14px}
+.ctr button{height:76px;border-radius:20px;border:0;font-size:17px;font-weight:700;background:var(--card);color:var(--ink)}
+.ctr .pp{background:var(--acc);font-size:21px}
+.done{align-items:center;justify-content:center;text-align:center}
+.done .big{font-size:64px}
+.done p{color:var(--mut);font-size:17px}
+.note{font-size:12px;color:#64748b;margin-top:10px;text-align:center}
+</style>
+</head>
+<body>
+<!-- START -->
+<section class="screen on" id="start">
+  <h1>Haltungs-Training</h1>
+  <p class="sub">6 Übungen · freihändig · einfach Play drücken und mitmachen</p>
+  <div style="font-weight:700;font-size:15px">Woche</div>
+  <div class="seg" id="weeks"></div>
+  <div class="wkinfo" id="wkinfo"></div>
+  <label class="row">Plank statt Dead Bug<span class="sw"><input type="checkbox" id="optPlank"><span></span></span></label>
+  <label class="row">Sprachansagen<span class="sw"><input type="checkbox" id="optVoice" checked><span></span></span></label>
+  <label class="row">Töne<span class="sw"><input type="checkbox" id="optSound" checked><span></span></span></label>
+  <ul class="list" id="plist"></ul>
+  <button class="play" id="playBtn" aria-label="Start">▶&nbsp; Start</button>
+  <div class="total" id="total"></div>
+  <div class="note">Bei Schmerzen, Taubheit oder Schwindel abbrechen und ärztlich/physiotherapeutisch abklären.</div>
+</section>
+<!-- RUN -->
+<section class="screen" id="run">
+  <div class="top">
+    <button class="icon" id="exitBtn" aria-label="Beenden">✕</button>
+    <div class="lbl" id="stepLbl">Übung 1/6</div>
+    <button class="icon" id="muteBtn" aria-label="Ton">🔊</button>
+  </div>
+  <div class="bar"><i id="totBar"></i></div>
+  <div class="media"><img id="gif" alt=""><div class="badge" id="badge">LOS</div></div>
+  <div class="name" id="exName"></div>
+  <div class="side" id="exSide"></div>
+  <div class="cue" id="exCue"></div>
+  <div class="clock">
+    <div class="big" id="big">0</div>
+    <div class="rep"><div class="n" id="repN"></div><div class="ph" id="repPh"></div></div>
+  </div>
+  <div class="sbar" id="sbarW"><i id="sbar"></i></div>
+  <div class="ctr">
+    <button id="backBtn" aria-label="Zurück">⏮ Zurück</button>
+    <button class="pp" id="pauseBtn" aria-label="Pause">⏸ Pause</button>
+    <button id="skipBtn" aria-label="Weiter">Weiter ⏭</button>
+  </div>
+</section>
+<!-- DONE -->
+<section class="screen done" id="done">
+  <div class="big">🎉</div>
+  <h1>Geschafft!</h1>
+  <p id="doneTxt"></p>
+  <button class="play" id="againBtn" style="width:100%">↺&nbsp; Nochmal</button>
+  <button class="play" id="homeBtn" style="width:100%;background:#1e293b;color:#fff">Zur Übersicht</button>
+</section>
+
+<script>
+(() => {
+'use strict';
+const Q = new URLSearchParams(location.search);
+const SPEED = Math.max(0.1, Number(Q.get('speed')) || 1);
+const $ = id => document.getElementById(id);
+const GIF = n => 'assets/' + n + '.gif';
+window.__log = [];
+const log = (type, data) => window.__log.push(Object.assign({type, i: S.idx, t: +(performance.now() / 1000).toFixed(2)}, data || {}));
+
+// ---------------------------------------------------------------- exercises
+const EX = {
+  chin:   {name: 'Kinn-Rückzug', gif: 'chin_tuck', cue: 'Kopf gerade nach hinten schieben, Doppelkinn machen. Blick bleibt geradeaus.', prep: 'Aufrecht hinstellen oder hinsetzen.'},
+  door:   {name: 'Türrahmen-Brustdehnung', gif: 'doorway_stretch', cue: 'Unterarme an den Türrahmen, Ellbogen auf Schulterhöhe. Nach vorn lehnen, bis die Brust dehnt.', prep: 'Stell dich in einen Türrahmen.'},
+  wall:   {name: 'Wandengel', gif: 'wall_angels', cue: 'Kopf, oberer Rücken und Po an der Wand. Arme langsam hoch und runter gleiten lassen.', prep: 'Mit dem Rücken an eine Wand stellen.'},
+  hip:    {name: 'Hüftbeuger-Dehnung', gif: 'hip_flexor_stretch', cue: 'Becken einrollen, Po anspannen, Hüfte nach vorn schieben. Oberkörper aufrecht.', prep: 'In den Halbkniestand gehen.'},
+  bridge: {name: 'Beckenheben', gif: 'glute_bridge', cue: 'Füße flach, Po anspannen, Hüfte heben bis Schultern, Hüfte und Knie eine Linie bilden.', prep: 'Auf den Rücken legen, Knie anstellen.'},
+  bug:    {name: 'Dead Bug', gif: 'dead_bug', cue: 'Unterer Rücken bleibt am Boden. Gegenüberliegenden Arm und Bein ausstrecken, dann zurück.', prep: 'Auf den Rücken legen, Arme und Beine nach oben.'},
+  plank:  {name: 'Unterarmstütz (Plank)', gif: 'plank', cue: 'Unterarme unter den Schultern, Körper gerade wie ein Brett, Po und Bauch anspannen.', prep: 'Auf die Unterarme gehen.'}
+};
+const WEEKS = {
+  1: 'Lernen: 1 Runde, langsam und sauber. Ziel 5 Tage.',
+  2: 'Täglich: gleiche Runde, 6–7 Tage die Woche.',
+  3: 'Aufbauen: Dehnungen 45 s, Beckenheben und Dead Bug je 2 Sätze.',
+  4: 'Steigern: wie Woche 3, plus 4 s halten beim Beckenheben, langsamer Dead Bug, 12 Wandengel.'
+};
+
+// rep phases: [label, seconds] ; soft tick at each phase change after the first
+function buildPlan(week, plank) {
+  const w3 = week >= 3, w4 = week >= 4;
+  const hold = w3 ? 45 : 30;
+  const P = [];
+  const prep = (ex, secs, extra) => P.push(Object.assign({kind: 'prep', ex, dur: secs}, extra || {}));
+  const timed = (ex, secs, extra) => P.push(Object.assign({kind: 'work', ex, dur: secs}, extra || {}));
+  const reps = (ex, n, phases, extra) => {
+    const rd = phases.reduce((a, p) => a + p[1], 0);
+    P.push(Object.assign({kind: 'work', ex, reps: n, repDur: rd, phases, dur: n * rd}, extra || {}));
+  };
+  // 1 chin tuck
+  prep('chin', 15, {first: true});
+  reps('chin', 10, [['Zurück schieben', 1], ['Halten', 3], ['Lösen', 1]]);
+  // 2 doorway
+  prep('door', 15);
+  timed('door', hold, {set: '1/2'});
+  prep('door', 10, {set: '2/2', say: 'Kurz lockern. Gleich Satz 2.'});
+  timed('door', hold, {set: '2/2'});
+  // 3 wall angels
+  prep('wall', 15);
+  reps('wall', w4 ? 12 : 10, [['Hoch', 3], ['Runter', 3]]);
+  // 4 hip flexor
+  prep('hip', 15, {side: 'Linkes Knie unten', sideKey: 'L'});
+  timed('hip', hold, {side: 'Linkes Knie unten', sideKey: 'L'});
+  prep('hip', 10, {side: 'Rechtes Knie unten', sideKey: 'R', say: 'Seite wechseln. Rechtes Knie nach unten.'});
+  timed('hip', hold, {side: 'Rechtes Knie unten', sideKey: 'R'});
+  // 5 bridge
+  const bph = w4 ? [['Hoch', 1.5], ['Halten', 4], ['Runter', 1.5]] : [['Hoch', 1.5], ['Halten', 2], ['Runter', 1.5]];
+  const sets = w3 ? 2 : 1;
+  for (let s = 1; s <= sets; s++) {
+    prep('bridge', s === 1 ? 15 : 10, sets > 1 ? {set: s + '/' + sets, say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null} : {});
+    reps('bridge', 12, bph, sets > 1 ? {set: s + '/' + sets} : {});
+  }
+  // 6 dead bug / plank
+  if (plank) {
+    for (let s = 1; s <= 3; s++) {
+      prep('plank', s === 1 ? 15 : 10, {set: s + '/3', say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null});
+      timed('plank', 30, {set: s + '/3'});
+    }
+  } else {
+    const dph = w4 ? [['Ausstrecken', 3], ['Halten', 1], ['Zurück', 3]] : [['Ausstrecken', 2], ['Halten', 1], ['Zurück', 2]];
+    for (let s = 1; s <= sets; s++) {
+      prep('bug', s === 1 ? 15 : 10, sets > 1 ? {set: s + '/' + sets, say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null} : {});
+      reps('bug', 16, dph, Object.assign({alt: true}, sets > 1 ? {set: s + '/' + sets} : {}));
+    }
+  }
+  // exercise numbering
+  const order = []; P.forEach(p => { if (!order.includes(p.ex)) order.push(p.ex); p.exNo = order.indexOf(p.ex) + 1; });
+  P.nEx = order.length;
+  return P;
+}
+const fmt = s => { s = Math.round(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const planTotal = P => P.reduce((a, p) => a + p.dur, 0);
+
+// ---------------------------------------------------------------- settings
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('pt_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pt_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const S = {week: store.get('week', 1), plank: store.get('plank', false), voice: store.get('voice', true), sound: store.get('sound', true),
+           plan: [], idx: 0, el: 0, running: false, paused: false, last: 0, timer: null, startedAt: 0};
+
+function renderStart() {
+  const wk = $('weeks'); wk.innerHTML = '';
+  for (let w = 1; w <= 4; w++) {
+    const b = document.createElement('button'); b.textContent = w; b.className = w === S.week ? 'sel' : '';
+    b.onclick = () => { S.week = w; store.set('week', w); renderStart(); }; wk.appendChild(b);
+  }
+  $('wkinfo').textContent = WEEKS[S.week];
+  $('optPlank').checked = S.plank; $('optVoice').checked = S.voice; $('optSound').checked = S.sound;
+  const P = buildPlan(S.week, S.plank);
+  const per = {}; P.forEach(p => { if (p.kind === 'work') per[p.ex] = (per[p.ex] || 0) + p.dur; });
+  const desc = {chin: () => '10 Wdh.', door: () => '2 × ' + (S.week >= 3 ? 45 : 30) + ' s', wall: () => (S.week >= 4 ? 12 : 10) + ' Wdh.',
+                hip: () => (S.week >= 3 ? 45 : 30) + ' s pro Seite', bridge: () => (S.week >= 3 ? '2 × ' : '') + '12 Wdh.',
+                bug: () => (S.week >= 3 ? '2 × ' : '') + '8 pro Seite', plank: () => '3 × 30 s'};
+  $('plist').innerHTML = Object.keys(per).map((k, i) => `<li><span>${i + 1}. ${EX[k].name}</span><span>${desc[k]()}</span></li>`).join('');
+  $('total').textContent = 'Dauer inkl. Wechselpausen: ca. ' + Math.round(planTotal(P) / 60) + ' Min.';
+}
+$('optPlank').onchange = e => { S.plank = e.target.checked; store.set('plank', S.plank); renderStart(); };
+$('optVoice').onchange = e => { S.voice = e.target.checked; store.set('voice', S.voice); updMute(); };
+$('optSound').onchange = e => { S.sound = e.target.checked; store.set('sound', S.sound); updMute(); };
+
+// ---------------------------------------------------------------- audio
+let AC = null;
+function unlockAudio() {
+  try {
+    if (!AC) { const C = window.AudioContext || window.webkitAudioContext; if (C) AC = new C(); }
+    if (AC) {
+      if (AC.state === 'suspended') AC.resume();
+      const b = AC.createBuffer(1, 1, 22050), s = AC.createBufferSource(); s.buffer = b; s.connect(AC.destination); s.start(0);
+    }
+  } catch (e) {}
+}
+function tone(freq, dur, vol, type, when, freq2) {
+  if (!S.sound || !AC) return;
+  try {
+    const t0 = AC.currentTime + (when || 0);
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t0);
+    if (freq2) o.frequency.exponentialRampToValueAtTime(freq2, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.3, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch (e) {}
+}
+const SND = {
+  count: () => tone(880, 0.13, 0.35, 'sine'),
+  end:   () => { tone(660, 0.18, 0.35, 'triangle'); tone(880, 0.18, 0.35, 'triangle', 0.16); tone(1320, 0.35, 0.35, 'triangle', 0.32); },
+  go:    () => { tone(990, 0.12, 0.35, 'square'); tone(1320, 0.3, 0.3, 'square', 0.12); },
+  rep:   () => tone(1560, 0.06, 0.25, 'square'),
+  phase: () => tone(520, 0.09, 0.25, 'sine'),
+  done:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.3, 0.3, 'triangle', i * 0.15))
+};
+let deVoice = null;
+function pickVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices() || [];
+  deVoice = vs.find(v => /^de(-|_)DE/i.test(v.lang) && /Anna|Helena|Markus|Google/i.test(v.name)) || vs.find(v => /^de/i.test(v.lang)) || null;
+}
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(text, interrupt) {
+  log('say', {text});
+  if (!S.voice || !('speechSynthesis' in window) || !text) return;
+  try {
+    if (interrupt) speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; if (deVoice) u.voice = deVoice; u.rate = 1.0;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+// ---------------------------------------------------------------- wake lock
+let wl = null;
+async function wake() {
+  try { if ('wakeLock' in navigator && !wl && document.visibilityState === 'visible') { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); } } catch (e) { wl = null; }
+}
+function unwake() { try { if (wl) wl.release(); } catch (e) {} wl = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.running) wake(); });
+
+// ---------------------------------------------------------------- engine
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0, 0); }
+function nextWorkAfter(i) { for (let k = i + 1; k < S.plan.length; k++) if (S.plan[k].kind === 'work') return S.plan[k]; return null; }
+
+function enterStep(i) {
+  S.idx = i; S.el = 0;
+  const p = S.plan[i];
+  if (!p) return finish();
+  const ex = EX[p.ex];
+  log('step', {kind: p.kind, ex: p.ex, dur: p.dur, reps: p.reps || 0, side: p.sideKey || '', set: p.set || ''});
+  const img = $('gif'); const src = GIF(ex.gif);
+  if (img.getAttribute('src') !== src) img.setAttribute('src', src);
+  img.className = p.sideKey === 'R' ? 'flip' : '';
+  $('exName').textContent = (p.kind === 'prep' ? 'Gleich: ' : '') + ex.name;
+  $('exSide').textContent = [p.side, p.set ? 'Satz ' + p.set : ''].filter(Boolean).join(' · ');
+  $('exCue').textContent = p.kind === 'prep' ? ex.prep + ' ' + ex.cue : ex.cue;
+  $('badge').textContent = p.kind === 'prep' ? 'VORBEREITEN' : 'LOS';
+  $('badge').className = 'badge' + (p.kind === 'prep' ? ' prep' : '');
+  $('sbarW').className = 'sbar' + (p.kind === 'prep' ? ' prep' : '');
+  $('stepLbl').textContent = 'Übung ' + p.exNo + '/' + S.plan.nEx + (p.kind === 'prep' ? ' · Vorbereitung' : '');
+  if (p.kind === 'prep') {
+    let t;
+    if (p.say) t = p.say;
+    else {
+      const w = nextWorkAfter(i);
+      t = (p.first ? 'Los geht\'s. ' : 'Gut gemacht. ') + 'Gleich: ' + ex.name + '. ' + ex.prep;
+      if (p.side) t += ' ' + p.side + '.';
+      if (w && w.reps) t += ' ' + (w.alt ? (w.reps / 2) + ' pro Seite.' : w.reps + ' Wiederholungen.');
+      else if (w) t += ' ' + w.dur + ' Sekunden halten.';
+    }
+    say(t, true);
+  } else {
+    SND.go();
+    if (p.reps) { SND.rep(); say('1', true); log('rep', {n: 1, of: p.reps}); }
+    else say('Los. Halten.', true);
+  }
+  render();
+}
+function finish() {
+  S.running = false; clearInterval(S.timer); unwake();
+  SND.done(); say('Geschafft! Super gemacht.', true); log('finish');
+  const real = (performance.now() - S.startedAt) / 1000;
+  $('doneTxt').textContent = 'Woche ' + S.week + ' erledigt · ' + fmt(planTotal(S.plan)) + ' Min. Training. Bis morgen!';
+  show('done');
+}
+function advance(prev, now) {
+  const p = S.plan[S.idx];
+  // last-5-seconds beeps + voice "noch 5 Sekunden" on holds
+  const a = Math.ceil(p.dur - prev - 1e-9), b = Math.ceil(p.dur - now - 1e-9);
+  for (let k = a - 1; k >= b; k--) {
+    if (k >= 1 && k <= 5) { SND.count(); log('beep', {k}); if (k === 5 && p.kind === 'work' && !p.reps && p.dur >= 20) say('Noch 5 Sekunden'); }
+  }
+  if (p.reps) {
+    const r0 = Math.floor(prev / p.repDur), r1 = Math.floor(Math.min(now, p.dur - 1e-6) / p.repDur);
+    for (let r = r0 + 1; r <= r1 && r < p.reps; r++) { SND.rep(); say(String(r + 1), true); log('rep', {n: r + 1, of: p.reps}); }
+    // phase ticks
+    let off = 0;
+    p.phases.forEach((ph, j) => {
+      if (j > 0) {
+        const q0 = Math.floor((prev - off) / p.repDur), q1 = Math.floor((now - off) / p.repDur);
+        if (q1 > q0 && now < p.dur) SND.phase();
+      }
+      off += ph[1];
+    });
+  }
+}
+function tick() {
+  const t = performance.now();
+  const dt = (t - S.last) / 1000 * SPEED; S.last = t;
+  if (!S.running || S.paused) return;
+  const p = S.plan[S.idx];
+  const prev = S.el, now = Math.min(S.el + dt, p.dur);
+  advance(prev, now); S.el = now;
+  if (S.el >= p.dur - 1e-9) {
+    log('end', {ex: p.ex, kind: p.kind});
+    if (p.kind === 'work') SND.end();
+    enterStep(S.idx + 1);
+    return;
+  }
+  render();
+}
+function render() {
+  const p = S.plan[S.idx]; if (!p) return;
+  const rem = Math.max(0, p.dur - S.el);
+  const big = $('big'); big.textContent = Math.ceil(rem - 1e-9);
+  big.classList.toggle('last', rem <= 5);
+  $('sbar').style.width = (100 * S.el / p.dur).toFixed(1) + '%';
+  const done = S.plan.slice(0, S.idx).reduce((a, q) => a + q.dur, 0) + S.el;
+  $('totBar').style.width = (100 * done / planTotal(S.plan)).toFixed(1) + '%';
+  if (p.kind === 'work' && p.reps) {
+    const r = Math.min(p.reps, Math.floor(S.el / p.repDur) + 1);
+    $('repN').textContent = 'Wdh. ' + r + '/' + p.reps;
+    let inRep = S.el - (r - 1) * p.repDur, ph = p.phases[0][0];
+    for (const x of p.phases) { if (inRep < x[1]) { ph = x[0]; break; } inRep -= x[1]; }
+    $('repPh').textContent = ph;
+    if (p.alt) $('exSide').textContent = (r % 2 ? 'Linker Arm + rechtes Bein' : 'Rechter Arm + linkes Bein') + (p.set ? ' · Satz ' + p.set : '');
+  } else {
+    $('repN').textContent = p.kind === 'prep' ? '' : 'Halten';
+    $('repPh').textContent = p.kind === 'prep' ? 'In Position gehen' : '';
+  }
+}
+function start() {
+  unlockAudio();
+  S.plan = buildPlan(S.week, S.plank);
+  S.running = true; S.paused = false; S.last = performance.now(); S.startedAt = S.last;
+  clearInterval(S.timer); S.timer = setInterval(tick, 50);
+  setPauseLbl(); updMute(); show('run'); wake();
+  log('start', {week: S.week, plank: S.plank, total: planTotal(S.plan), speed: SPEED});
+  enterStep(0);
+}
+function setPauseLbl() { $('pauseBtn').textContent = S.paused ? '▶ Weiter' : '⏸ Pause'; }
+function updMute() { $('muteBtn').textContent = (S.sound || S.voice) ? '🔊' : '🔇'; }
+$('playBtn').onclick = start;
+$('againBtn').onclick = start;
+$('homeBtn').onclick = () => { renderStart(); show('start'); };
+$('pauseBtn').onclick = () => {
+  unlockAudio(); S.paused = !S.paused; S.last = performance.now(); setPauseLbl(); log(S.paused ? 'pause' : 'resume');
+  if ('speechSynthesis' in window) { if (S.paused) speechSynthesis.cancel(); }
+  if (S.paused) unwake(); else wake();
+};
+$('skipBtn').onclick = () => { unlockAudio(); if (!S.running) return; log('skip'); enterStep(S.idx + 1); };
+$('backBtn').onclick = () => {
+  unlockAudio(); if (!S.running) return; log('back');
+  if (S.el > 3 || S.idx === 0) enterStep(S.idx); else enterStep(S.idx - 1);
+};
+$('muteBtn').onclick = () => {
+  const on = !(S.sound || S.voice); S.sound = on; S.voice = on; store.set('sound', on); store.set('voice', on);
+  if (!on && 'speechSynthesis' in window) speechSynthesis.cancel(); updMute();
+};
+$('exitBtn').onclick = () => {
+  if (!confirm('Training beenden?')) return;
+  S.running = false; clearInterval(S.timer); unwake(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+  renderStart(); show('start');
+};
+// preload gifs
+Object.values(EX).forEach(e => { const i = new Image(); i.src = GIF(e.gif); });
+window.__app = {S, buildPlan, planTotal};
+renderStart();
+})();
+</script>
+</body>
+</html>

@@ -98,8 +98,39 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
 .ctr button:active{background:var(--line)}
 .ctr .pp{background:var(--accent);color:var(--on-accent);border-color:transparent;font-size:17px}
 .ctr .pp:active{opacity:.85;background:var(--accent)}
+.pcard{display:block;width:100%;text-align:left;background:transparent;border:1px solid var(--line-strong);border-radius:12px;padding:14px 16px;color:var(--text)}
+.pcard:active{background:var(--line)}
+.pcard .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:17px}
+.pcard .t .go{font-size:13px;color:var(--accent);white-space:nowrap}
+.pcard .meta{margin-top:4px}
+.pbar{height:4px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:10px}
+.pbar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.banner{border-radius:12px;background:var(--accent-soft);color:var(--text);padding:10px 14px;font-size:13px;line-height:18px;margin-top:10px}
+.banner b{font-weight:600;color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats div{padding:14px 0 12px;text-align:center}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:28px;line-height:32px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:6px 0 4px}
+.steps i{height:4px;border-radius:999px;background:var(--line-strong)}
+.steps i.on{background:var(--accent)} .steps i.cur{background:var(--accent);opacity:.45}
+.heat{display:grid;grid-template-columns:22px repeat(12,1fr);gap:4px;align-items:center}
+.heat .c{aspect-ratio:1;border-radius:4px;background:var(--line)}
+.heat .c.done{background:var(--accent)} .heat .c.part{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.heat .c.photo{box-shadow:inset 0 0 0 2px var(--warn)} .heat .c.done.photo{box-shadow:inset 0 0 0 2px var(--warn)}
+.heat .c.today{outline:1.5px solid var(--text);outline-offset:1px} .heat .c.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.heat .c.pre{opacity:.35}
+.heat .wd{font-size:10px;color:var(--faint);text-align:left}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--line)}
+.btn.sm{min-height:48px;font-size:15px}
+.btn2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chips.c6{grid-template-columns:1.4fr repeat(5,1fr)} .chips.c6 .chip{min-height:44px;font-size:14px}
+.datein{font:inherit;color:var(--text);background:transparent;border:1px solid var(--line-strong);border-radius:10px;padding:8px 10px;min-height:40px}
+.hist .row{min-height:48px;padding:10px 0;font-size:14px}
 .done{justify-content:center}
-.done .big{font-size:56px;color:var(--accent)}
+.done .big{font-size:44px;line-height:1.05;color:var(--accent)}
 .done p{color:var(--muted);font-size:15px;margin:4px 0 24px}
 .done .btn+.btn{margin-top:8px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -110,9 +141,14 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
 <section class="screen on" id="start">
   <h1>Haltungs-Training</h1>
   <p class="sub">6 Übungen, freihändig. Start drücken und mitmachen.</p>
-  <div class="label">Woche</div>
-  <div class="chips c4" id="weeks" role="radiogroup" aria-label="Woche"></div>
+  <div class="label">Programm</div>
+  <button class="pcard" id="progBtn" aria-label="Fortschritt öffnen">
+    <div class="t"><span id="pcTitle">Phase 1 · Grundlagen</span><span class="go">Fortschritt ›</span></div>
+    <div class="meta" id="pcMeta"></div>
+    <div class="pbar"><i id="pcBar" style="width:0"></i></div>
+  </button>
   <div class="wkinfo" id="wkinfo"></div>
+  <div id="banners"></div>
   <div class="label">Optionen</div>
   <div class="list">
     <label class="row">Plank statt Dead Bug<span class="sw"><input type="checkbox" id="optPlank"><span></span></span></label>
@@ -153,11 +189,50 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
   </div>
 </section>
 <!-- DONE -->
+<section class="screen" id="prog">
+  <div class="top">
+    <button class="icon" id="progBack" aria-label="Zurück"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="lbl">Fortschritt</div>
+  </div>
+  <h1 id="prTitle">Phase 1 · Grundlagen</h1>
+  <p class="sub" id="prSub"></p>
+  <div class="steps" id="prSteps"></div>
+  <div class="wkinfo" id="prDesc"></div>
+  <div class="label">Überblick</div>
+  <div class="stats">
+    <div><b id="stStreak">0</b><span>Tage-Serie</span></div>
+    <div><b id="stWeek">0/5</b><span>Diese Woche</span></div>
+    <div><b id="stTotal">0</b><span>Gesamt</span></div>
+  </div>
+  <div class="label">Phase</div>
+  <ul class="list" id="prPhase"></ul>
+  <div class="label">Letzte 12 Wochen</div>
+  <div class="heat" id="heat"></div>
+  <div class="legend"><span><i style="background:var(--accent)"></i>Trainiert</span><span><i style="background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)"></i>Teilweise</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn);background:transparent"></i>Foto-Check</span></div>
+  <div class="label">Phase wählen</div>
+  <div class="chips c6" id="ovr" role="radiogroup" aria-label="Phase"></div>
+  <div class="wkinfo" id="ovrInfo"></div>
+  <div class="label">Start</div>
+  <div class="list">
+    <label class="row">Startdatum<input type="date" class="datein" id="startDate"></label>
+  </div>
+  <div class="label">Datensicherung</div>
+  <div class="btn2">
+    <button class="btn ghost sm" id="expBtn">Exportieren</button>
+    <button class="btn ghost sm" id="impBtn">Importieren</button>
+  </div>
+  <input type="file" id="impFile" accept="application/json,.json" hidden>
+  <p class="note" id="storeNote" style="text-align:left"></p>
+  <div class="label">Letzte Einheiten</div>
+  <ul class="list hist" id="hist"></ul>
+  <div style="height:24px"></div>
+</section>
 <section class="screen done" id="done">
-  <div class="big">Geschafft</div>
+  <div class="big" id="doneBig">Geschafft</div>
   <p id="doneTxt"></p>
   <button class="btn primary" id="againBtn">Nochmal</button>
   <button class="btn ghost" id="homeBtn">Zur Übersicht</button>
+  <button class="btn ghost" id="doneProg">Fortschritt ansehen</button>
 </section>
 
 <script>
@@ -180,17 +255,29 @@ const EX = {
   bug:    {name: 'Dead Bug', gif: 'dead_bug', cue: 'Unterer Rücken bleibt am Boden. Gegenüberliegenden Arm und Bein ausstrecken, dann zurück.', prep: 'Auf den Rücken legen, Arme und Beine nach oben.'},
   plank:  {name: 'Unterarmstütz (Plank)', gif: 'plank', cue: 'Unterarme unter den Schultern, Körper gerade wie ein Brett, Po und Bauch anspannen.', prep: 'Auf die Unterarme gehen.'}
 };
-const WEEKS = {
-  1: 'Lernen: 1 Runde, langsam und sauber. Ziel 5 Tage.',
-  2: 'Täglich: gleiche Runde, 6–7 Tage die Woche.',
-  3: 'Aufbauen: Dehnungen 45 s, Beckenheben und Dead Bug je 2 Sätze.',
-  4: 'Steigern: wie Woche 3, plus 4 s halten beim Beckenheben, langsamer Dead Bug, 12 Wandengel.'
-};
+// variations of the same movement patterns (introduced in phase 4, alternated in 4-week blocks in phase 5)
+EX.yraise = {name: 'Y-Heben in Bauchlage', gif: 'prone_y_raise', cue: 'Arme schräg nach vorn wie ein Y, Daumen nach oben. Schulterblätter nach unten ziehen und Arme ein paar Zentimeter anheben. Kopf bleibt unten.', prep: 'Auf den Bauch legen, Stirn auf ein gefaltetes Handtuch.'};
+EX.hipr = {name: 'Hüftbeuger-Dehnung mit Arm hoch', gif: 'hip_flexor_reach', cue: 'Becken einrollen, Po anspannen. Arm auf der Seite des unteren Knies gerade nach oben strecken, dann Hüfte leicht nach vorn.', prep: 'In den Halbkniestand gehen.'};
+EX.march = {name: 'Beckenheben mit Marschieren', gif: 'bridge_march', cue: 'Becken oben halten. Abwechselnd ein Knie anheben, bis der Oberschenkel senkrecht steht. Becken bleibt gerade und kippt nicht.', prep: 'Auf den Rücken legen, Knie anstellen, Becken heben.'};
+
+// ---------------------------------------------------------------- program: phases (see research-progression.md)
+// advance when BOTH: enough completed training days in the phase AND enough calendar days in the phase
+const PH = [null,
+  {n: 1, name: 'Grundlagen', minDays: 10, minCal: 14, target: 5, desc: 'Technik lernen: 1 Runde, langsam und sauber, Dehnungen 30 s. Ziel: 5 Tage pro Woche.'},
+  {n: 2, name: 'Aufbau', minDays: 10, minCal: 14, target: 5, desc: 'Dehnungen 45 s, Beckenheben und Dead Bug je 2 Sätze. Ziel: 5 Tage pro Woche.'},
+  {n: 3, name: 'Steigern', minDays: 10, minCal: 14, target: 5, desc: 'Langsameres Tempo: 5 s Kinn halten, 4 s oben beim Beckenheben, 12 Wandengel. Ziel: 5 Tage pro Woche.'},
+  {n: 4, name: 'Variation', minDays: 12, minCal: 21, target: 4, desc: 'Gleiche Muster, neuer Reiz: Y-Heben statt Wandengel, Marschieren beim Beckenheben, Hüftdehnung mit Arm hoch. Ziel: 4 Tage pro Woche.'},
+  {n: 5, name: 'Erhalten', minDays: Infinity, minCal: Infinity, target: 3, desc: '3 Tage pro Woche reichen zum Halten. Alle 4 Wochen Wechsel zwischen Standard- und Variationsblock.'}
+];
+const GAP_RESET = 10, GAP_BACK1 = 21, GAP_BACK2 = 56;   // missed days -> restart phase counter / one phase back / two back
+const PHOTO_EVERY = 14;
 
 // rep phases: [label, seconds] ; soft tick at each phase change after the first
-function buildPlan(week, plank) {
-  const w3 = week >= 3, w4 = week >= 4;
-  const hold = w3 ? 45 : 30;
+function buildPlan(phase, plank, block) {
+  phase = Math.max(1, Math.min(5, phase | 0 || 1));
+  const L = Math.min(phase, 3);                                   // load level 1..3 (phase 4/5 keep level 3)
+  const varied = phase === 4 || (phase === 5 && block === 1);     // variation block
+  const hold = L >= 2 ? 45 : 30, sets = L >= 2 ? 2 : 1, slow = L >= 3;
   const P = [];
   const prep = (ex, secs, extra) => P.push(Object.assign({kind: 'prep', ex, dur: secs}, extra || {}));
   const timed = (ex, secs, extra) => P.push(Object.assign({kind: 'work', ex, dur: secs}, extra || {}));
@@ -198,45 +285,43 @@ function buildPlan(week, plank) {
     const rd = phases.reduce((a, p) => a + p[1], 0);
     P.push(Object.assign({kind: 'work', ex, reps: n, repDur: rd, phases, dur: n * rd}, extra || {}));
   };
-  // 1 chin tuck
+  const setLoop = (n, fn) => { for (let s = 1; s <= n; s++) fn(s, n > 1 ? {set: s + '/' + n} : {}); };
+  const pause = s => s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null;
+  // 1 chin tuck (deep neck flexors) – same exercise every phase, longer hold from phase 3
   prep('chin', 15, {first: true});
-  reps('chin', 10, [['Zurück schieben', 1], ['Halten', 3], ['Lösen', 1]]);
-  // 2 doorway
+  reps('chin', 10, [['Zurück schieben', 1], ['Halten', slow ? 5 : 3], ['Lösen', 1]]);
+  // 2 doorway pec stretch
   prep('door', 15);
   timed('door', hold, {set: '1/2'});
   prep('door', 10, {set: '2/2', say: 'Kurz lockern. Gleich Satz 2.'});
   timed('door', hold, {set: '2/2'});
-  // 3 wall angels
-  prep('wall', 15);
-  reps('wall', w4 ? 12 : 10, [['Hoch', 3], ['Runter', 3]]);
-  // 4 hip flexor
-  prep('hip', 15, {side: 'Linkes Knie unten', sideKey: 'L'});
-  timed('hip', hold, {side: 'Linkes Knie unten', sideKey: 'L'});
-  prep('hip', 10, {side: 'Rechtes Knie unten', sideKey: 'R', say: 'Seite wechseln. Rechtes Knie nach unten.'});
-  timed('hip', hold, {side: 'Rechtes Knie unten', sideKey: 'R'});
-  // 5 bridge
-  const bph = w4 ? [['Hoch', 1.5], ['Halten', 4], ['Runter', 1.5]] : [['Hoch', 1.5], ['Halten', 2], ['Runter', 1.5]];
-  const sets = w3 ? 2 : 1;
-  for (let s = 1; s <= sets; s++) {
-    prep('bridge', s === 1 ? 15 : 10, sets > 1 ? {set: s + '/' + sets, say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null} : {});
-    reps('bridge', 12, bph, sets > 1 ? {set: s + '/' + sets} : {});
-  }
-  // 6 dead bug / plank
-  if (plank) {
-    for (let s = 1; s <= 3; s++) {
-      prep('plank', s === 1 ? 15 : 10, {set: s + '/3', say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null});
-      timed('plank', 30, {set: s + '/3'});
-    }
+  // 3 scapular pattern: wall angels -> prone Y raise (variation)
+  if (varied) { prep('yraise', 15); reps('yraise', 10, [['Hoch', 2], ['Halten', 2], ['Runter', 2]]); }
+  else { prep('wall', 15); reps('wall', slow ? 12 : 10, [['Hoch', 3], ['Runter', 3]]); }
+  // 4 hip flexor stretch (variation adds the overhead reach)
+  const hx = varied ? 'hipr' : 'hip';
+  prep(hx, 15, {side: 'Linkes Knie unten', sideKey: 'L'});
+  timed(hx, hold, {side: 'Linkes Knie unten', sideKey: 'L'});
+  prep(hx, 10, {side: 'Rechtes Knie unten', sideKey: 'R', say: 'Seite wechseln. Rechtes Knie nach unten.'});
+  timed(hx, hold, {side: 'Rechtes Knie unten', sideKey: 'R'});
+  // 5 glute pattern: bridge -> marching bridge (variation)
+  if (varied) {
+    setLoop(sets, (s, x) => { prep('march', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); reps('march', 10, [['Knie hoch', 2], ['Halten', 1], ['Ab', 2]], Object.assign({alt: ['Linkes Knie hoch', 'Rechtes Knie hoch']}, x)); });
   } else {
-    const dph = w4 ? [['Ausstrecken', 3], ['Halten', 1], ['Zurück', 3]] : [['Ausstrecken', 2], ['Halten', 1], ['Zurück', 2]];
-    for (let s = 1; s <= sets; s++) {
-      prep('bug', s === 1 ? 15 : 10, sets > 1 ? {set: s + '/' + sets, say: s > 1 ? 'Kurze Pause. Gleich Satz ' + s + '.' : null} : {});
-      reps('bug', 16, dph, Object.assign({alt: true}, sets > 1 ? {set: s + '/' + sets} : {}));
-    }
+    const bph = slow ? [['Hoch', 1.5], ['Halten', 4], ['Runter', 1.5]] : [['Hoch', 1.5], ['Halten', 2], ['Runter', 1.5]];
+    setLoop(sets, (s, x) => { prep('bridge', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); reps('bridge', slow ? 10 : 12, bph, x); });
   }
-  // exercise numbering
+  // 6 anti-extension core: dead bug or plank
+  if (plank) {
+    const ph = slow ? 45 : 30;
+    setLoop(3, (s, x) => { prep('plank', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); timed('plank', ph, x); });
+  } else {
+    const dph = slow ? [['Ausstrecken', 3], ['Halten', 1], ['Zurück', 3]] : [['Ausstrecken', 2], ['Halten', 1], ['Zurück', 2]];
+    setLoop(sets, (s, x) => { prep('bug', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); reps('bug', slow ? 12 : 16, dph, Object.assign({alt: ['Linker Arm + rechtes Bein', 'Rechter Arm + linkes Bein']}, x)); });
+  }
+  P.forEach(p => { if (p.say === null) delete p.say; });
   const order = []; P.forEach(p => { if (!order.includes(p.ex)) order.push(p.ex); p.exNo = order.indexOf(p.ex) + 1; });
-  P.nEx = order.length;
+  P.nEx = order.length; P.phase = phase; P.varied = varied;
   return P;
 }
 const fmt = s => { s = Math.round(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
@@ -247,8 +332,87 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('pt_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('pt_' + k, JSON.stringify(v)); } catch (e) {} }
 };
-const S = {theme: store.get('theme', 'system'), week: store.get('week', 1), plank: store.get('plank', false), voice: store.get('voice', true), sound: store.get('sound', true),
-           plan: [], idx: 0, el: 0, running: false, paused: false, last: 0, timer: null, startedAt: 0};
+const S = {theme: store.get('theme', 'system'), plank: store.get('plank', false), voice: store.get('voice', true), sound: store.get('sound', true),
+           plan: [], idx: 0, el: 0, running: false, paused: false, last: 0, timer: null, startedAt: 0, doneSec: 0, sess: null};
+store.set('week', null); try { localStorage.removeItem('pt_week'); } catch (e) {}
+
+// ---------------------------------------------------------------- dates (local calendar days; fake clock: ?now=YYYY-MM-DD or window.__now)
+const pad = n => String(n).padStart(2, '0');
+const ymd = t => t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
+const dIdx = s => { const [y, m, d] = s.split('-').map(Number); return Math.round(Date.UTC(y, m - 1, d) / 864e5); };
+const fromIdx = i => { const t = new Date(i * 864e5); return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate()); };
+const NOW = () => { const q = window.__now || Q.get('now'); if (!q) return new Date(); return new Date(/^\d{4}-\d\d-\d\d$/.test(q) ? q + 'T12:00:00' : q); };
+const todayIdx = () => dIdx(ymd(NOW()));
+const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const deDate = i => { const t = new Date(i * 864e5); return WD[t.getUTCDay()] + ' ' + pad(t.getUTCDate()) + '.' + pad(t.getUTCMonth() + 1) + '.'; };
+const monIdx = i => i - ((new Date(i * 864e5).getUTCDay() + 6) % 7);   // Monday of that week
+
+// ---------------------------------------------------------------- tracking + phase engine
+const getLog = () => { const l = store.get('log', []); return Array.isArray(l) ? l : []; };
+function program(at) {
+  if (at === undefined) at = todayIdx();
+  const log = getLog();
+  const days = [...new Set(log.filter(e => e.st === 'completed').map(e => dIdx(e.d)))].sort((a, b) => a - b);
+  const partDays = new Set(log.filter(e => e.st !== 'completed').map(e => dIdx(e.d)));
+  const startS = store.get('start', null);
+  const s0 = startS ? dIdx(startS) : (log.length ? Math.min(...log.map(e => dIdx(e.d))) : at);
+  let ph = 1, pStart = Math.min(s0, days.length ? days[0] : s0), cnt = 0, last = null;
+  const ev = [];
+  const gapRule = day => {
+    if (last === null) return null;
+    const gap = day - last - 1;
+    if (gap >= GAP_BACK1) return {type: 'back', from: ph, to: Math.max(1, ph - (gap >= GAP_BACK2 ? 2 : 1)), gap};
+    if (gap >= GAP_RESET) return {type: 'reset', ph, gap};
+    return null;
+  };
+  for (const day of days) {
+    if (day > at) break;
+    const g = gapRule(day);
+    if (g) { ev.push(Object.assign({day}, g)); if (g.type === 'back') ph = g.to; pStart = day; cnt = 0; }
+    cnt++; last = day;
+    const P = PH[ph];
+    if (ph < 5 && cnt >= P.minDays && day - pStart + 1 >= P.minCal) { ev.push({day, type: 'up', from: ph, to: ph + 1}); ph++; pStart = day + 1; cnt = 0; }
+  }
+  const doneToday = days.includes(at);
+  let pending = null;
+  if (!doneToday) { const g = gapRule(at); if (g) pending = g; }
+  const eff = pending && pending.type === 'back' ? pending.to : ph;
+  const effStart = pending ? at : pStart, effCnt = pending ? 0 : cnt;
+  const ov = store.get('override', null);
+  const use = ov || eff;
+  const block = use === 5 ? Math.floor(Math.max(0, at - (ov && eff !== 5 ? s0 : effStart)) / 28) % 2 : 0;
+  const P = PH[eff];
+  const remDays = Math.max(0, P.minDays - effCnt);
+  const earliestDone = eff < 5 ? Math.max(at + remDays - (doneToday ? 0 : 1), effStart + P.minCal - 1) : null;
+  // streak / week
+  const set = new Set(days);
+  let streak = 0; for (let i = doneToday ? at : at - 1; set.has(i); i--) streak++;
+  const mon = monIdx(at); const week = days.filter(d => d >= mon && d <= at).length;
+  return {at, phase: eff, use, override: ov, block, start: s0, startSet: !!startS, pStart: effStart, cnt: effCnt, remDays, minDays: P.minDays, minCal: P.minCal,
+          calDay: at - effStart + 1, nextAt: earliestDone === null ? null : earliestDone + 1, pending, events: ev, days, partDays, doneToday,
+          streak, week, target: PH[use].target, total: days.length, sessions: log.length, dayNo: at - s0 + 1, weekNo: Math.floor((at - s0) / 7) + 1};
+}
+function nextPhoto(st) { const k = Math.max(1, Math.ceil((st.at - st.start) / PHOTO_EVERY)); return st.start + k * PHOTO_EVERY; }
+function logSession(status) {
+  const t = NOW(), d = ymd(t), st = S.sess || {};
+  const e = {d, ts: t.toISOString(), ph: st.phase || 1, blk: st.block || 0, var: !!st.varied, plank: !!st.plank, st: status,
+             dur: Math.round(S.doneSec), plan: Math.round(planTotal(S.plan))};
+  const log = getLog(); log.push(e); store.set('log', log);
+  if (!store.get('start', null)) store.set('start', d);
+  requestPersist();
+  log_('session', e);
+  return e;
+}
+const log_ = (type, data) => log(type, data);
+let persisted = null;
+function requestPersist() {
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().then(v => { persisted = v; }).catch(() => {}); } catch (e) {}
+}
+function checkPersist() {
+  try { if (navigator.storage && navigator.storage.persisted) return navigator.storage.persisted().then(v => (persisted = v)); } catch (e) {}
+  return Promise.resolve(null);
+}
+const isInstalled = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 
 const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 function applyTheme() {
@@ -262,18 +426,32 @@ function renderStart() {
   applyTheme();
   const th = $('themes'); th.innerHTML = '';
   [['light', 'Hell'], ['dark', 'Dunkel'], ['system', 'System']].forEach(([k, l]) => th.appendChild(chip(l, S.theme === k, () => { S.theme = k; store.set('theme', k); renderStart(); })));
-  const wk = $('weeks'); wk.innerHTML = '';
-  for (let w = 1; w <= 4; w++) {
-    wk.appendChild(chip(String(w), w === S.week, () => { S.week = w; store.set('week', w); renderStart(); }));
+  const st = program(); S.st = st;
+  $('pcTitle').textContent = 'Phase ' + st.use + ' · ' + PH[st.use].name + (st.override ? ' (manuell)' : '') + (st.use === 5 ? (st.block ? ' · Variationsblock' : ' · Standardblock') : '');
+  $('pcMeta').textContent = st.sessions === 0 && !st.startSet ? 'Noch nicht gestartet. Der Start wird mit der ersten Einheit gespeichert.'
+    : 'Tag ' + st.dayNo + ' · Woche ' + st.weekNo + ' · diese Woche ' + st.week + '/' + st.target + (st.phase < 5 && !st.override ? ' · Phase-Trainingstage ' + Math.min(st.cnt, st.minDays) + '/' + st.minDays : '');
+  $('pcBar').style.width = (st.phase < 5 ? Math.min(100, 100 * Math.min(st.cnt / st.minDays, st.calDay / st.minCal)) : 100) + '%';
+  $('wkinfo').textContent = PH[st.use].desc;
+  const bn = [];
+  if (st.pending && !st.override) bn.push(st.pending.type === 'back'
+    ? `<b>Willkommen zurück.</b> ${st.pending.gap} Tage Pause – wir gehen eine Stufe zurück auf Phase ${st.pending.to}, damit Technik und Beweglichkeit wieder sitzen.`
+    : `<b>Willkommen zurück.</b> ${st.pending.gap} Tage Pause – die Phase bleibt, ihre Trainingstage zählen neu.`);
+  const ph = nextPhoto(st);
+  {
+    if ((st.sessions > 0 || st.startSet) && (st.at - st.start) > 0 && (st.at - st.start) % PHOTO_EVERY === 0) bn.push(`<b>Heute Foto-Check (Tag ${st.at - st.start}).</b> Seitlich fotografieren: gleiche Stelle, gleiche Kamerahöhe, entspannt stehen. Mit dem Foto vom Start vergleichen.`);
+    else if (st.sessions === 0 || st.at === st.start) bn.push('<b>Tag 0: Ausgangsfoto.</b> Einmal seitlich fotografieren (entspannt, Kamera auf Hüfthöhe). Alle 14 Tage wiederholen.');
   }
-  $('wkinfo').textContent = WEEKS[S.week];
+  $('banners').innerHTML = bn.map(h => `<div class="banner">${h}</div>`).join('');
   $('optPlank').checked = S.plank; $('optVoice').checked = S.voice; $('optSound').checked = S.sound;
-  const P = buildPlan(S.week, S.plank);
-  const per = {}; P.forEach(p => { if (p.kind === 'work') per[p.ex] = (per[p.ex] || 0) + p.dur; });
-  const desc = {chin: () => '10 Wdh.', door: () => '2 × ' + (S.week >= 3 ? 45 : 30) + ' s', wall: () => (S.week >= 4 ? 12 : 10) + ' Wdh.',
-                hip: () => (S.week >= 3 ? 45 : 30) + ' s pro Seite', bridge: () => (S.week >= 3 ? '2 × ' : '') + '12 Wdh.',
-                bug: () => (S.week >= 3 ? '2 × ' : '') + '8 pro Seite', plank: () => '3 × 30 s'};
-  $('plist').innerHTML = Object.keys(per).map((k, i) => `<li class="row"><span>${i + 1}. ${EX[k].name}</span><span class="meta">${desc[k]()}</span></li>`).join('');
+  const P = buildPlan(st.use, S.plank, st.block);
+  const per = {}; P.forEach(p => { if (p.kind === 'work') { const o = per[p.ex] || (per[p.ex] = {n: 0, w: p}); o.n++; } });
+  const desc = k => {
+    const o = per[k], w = o.w;
+    if (k === 'hip' || k === 'hipr') return w.dur + ' s pro Seite';
+    if (w.reps) return (o.n > 1 ? o.n + ' × ' : '') + (w.alt ? (w.reps / 2) + ' pro Seite' : w.reps + ' Wdh.');
+    return (o.n > 1 ? o.n + ' × ' : '') + w.dur + ' s';
+  };
+  $('plist').innerHTML = Object.keys(per).map((k, i) => `<li class="row"><span>${i + 1}. ${EX[k].name}</span><span class="meta">${desc(k)}</span></li>`).join('');
   $('total').textContent = 'Dauer inkl. Wechselpausen: ca. ' + Math.round(planTotal(P) / 60) + ' Min.';
 }
 $('optPlank').onchange = e => { S.plank = e.target.checked; store.set('plank', S.plank); renderStart(); };
@@ -409,8 +587,15 @@ function enterStep(i) {
 function finish() {
   S.running = false; clearInterval(S.timer); unwake();
   SND.done(); say('Geschafft! Super gemacht.', true); log('finish');
-  const real = (performance.now() - S.startedAt) / 1000;
-  $('doneTxt').textContent = 'Woche ' + S.week + ' erledigt, ' + fmt(planTotal(S.plan)) + ' Min. Training. Bis morgen!';
+  const before = program();
+  const e = logSession(S.doneSec >= 0.7 * planTotal(S.plan) ? 'completed' : 'partial');
+  const st = program();
+  let t = e.st === 'completed' ? fmt(S.doneSec) + ' Min. trainiert. ' : 'Als teilweise gespeichert (viel übersprungen). ';
+  if (!st.override && st.phase > before.phase && e.st === 'completed') t += 'Neue Phase freigeschaltet: ' + st.phase + ' · ' + PH[st.phase].name + '. ';
+  else if (st.phase < 5) t += 'Phase ' + st.phase + ': ' + Math.min(st.cnt, st.minDays) + '/' + st.minDays + ' Trainingstage. ';
+  t += 'Diese Woche ' + st.week + '/' + st.target + '.';
+  $('doneTxt').textContent = t;
+  $('doneBig').textContent = st.streak > 1 ? st.streak + ' Tage in Folge' : 'Geschafft';
   show('done');
 }
 function advance(prev, now) {
@@ -440,7 +625,7 @@ function tick() {
   if (!S.running || S.paused) return;
   const p = S.plan[S.idx];
   const prev = S.el, now = Math.min(S.el + dt, p.dur);
-  advance(prev, now); S.el = now;
+  advance(prev, now); S.el = now; S.doneSec += now - prev;
   if (S.el >= p.dur - 1e-9) {
     log('end', {ex: p.ex, kind: p.kind});
     if (p.kind === 'work') SND.end();
@@ -463,7 +648,7 @@ function render() {
     let inRep = S.el - (r - 1) * p.repDur, ph = p.phases[0][0];
     for (const x of p.phases) { if (inRep < x[1]) { ph = x[0]; break; } inRep -= x[1]; }
     $('repPh').textContent = ph;
-    if (p.alt) $('exSide').textContent = (r % 2 ? 'Linker Arm + rechtes Bein' : 'Rechter Arm + linkes Bein') + (p.set ? ' · Satz ' + p.set : '');
+    if (p.alt) $('exSide').textContent = (r % 2 ? p.alt[0] : p.alt[1]) + (p.set ? ' · Satz ' + p.set : '');
   } else {
     $('repN').textContent = p.kind === 'prep' ? '' : 'Halten';
     $('repPh').textContent = p.kind === 'prep' ? 'In Position gehen' : '';
@@ -471,7 +656,9 @@ function render() {
 }
 function start() {
   unlockAudio();
-  S.plan = buildPlan(S.week, S.plank);
+  const st = program();
+  S.plan = buildPlan(st.use, S.plank, st.block);
+  S.sess = {phase: st.use, block: st.block, varied: S.plan.varied, plank: S.plank}; S.doneSec = 0;
   S.running = false; S.paused = false; clearInterval(S.timer);
   setPauseLbl(); updMute(); show('run'); wake();
   enterPreview();
@@ -479,7 +666,7 @@ function start() {
   const begin = () => {
     S.running = true; S.last = performance.now(); S.startedAt = S.last;
     S.timer = setInterval(tick, 50);
-    log('start', {week: S.week, plank: S.plank, total: planTotal(S.plan), speed: SPEED, clipsReady: Object.keys(VC.buf).length});
+    log('start', {phase: S.sess.phase, block: S.sess.block, plank: S.plank, total: planTotal(S.plan), speed: SPEED, clipsReady: Object.keys(VC.buf).length});
     enterStep(0);
   };
   // give the voice clips a moment to finish decoding (first tap creates the AudioContext)
@@ -514,12 +701,114 @@ $('muteBtn').onclick = () => {
 };
 $('exitBtn').onclick = () => {
   if (!confirm('Training beenden?')) return;
+  const wasRunning = S.running;
   S.running = false; clearInterval(S.timer); unwake(); stopVoice();
+  if (wasRunning && S.doneSec >= 60) logSession('partial');
   renderStart(); show('start');
 };
 // preload gifs
 Object.values(EX).forEach(e => { const i = new Image(); i.src = GIF(e.gif); });
-window.__app = {S, buildPlan, planTotal, VC};
+// ---------------------------------------------------------------- progress screen
+function renderProgress() {
+  const st = program(); S.st = st;
+  $('prTitle').textContent = 'Phase ' + st.use + ' · ' + PH[st.use].name + (st.override ? ' (manuell)' : '');
+  const started = st.sessions > 0 || st.startSet;
+  $('prSub').textContent = started ? 'Start ' + deDate(st.start) + ' · Tag ' + st.dayNo + ' · Woche ' + st.weekNo : 'Noch keine Einheit. Der Start wird mit der ersten Einheit gespeichert.';
+  $('prSteps').innerHTML = [1, 2, 3, 4, 5].map(n => `<i class="${n < st.use ? 'on' : n === st.use ? 'cur' : ''}" title="Phase ${n}"></i>`).join('');
+  $('stStreak').textContent = st.streak; $('stWeek').textContent = st.week + '/' + st.target; $('stTotal').textContent = st.total;
+  const rows = [];
+  $('prDesc').textContent = PH[st.use].desc;
+  if (st.override) rows.push(['Automatik wäre', 'Phase ' + st.phase + ' · ' + PH[st.phase].name]);
+  if (st.phase < 5) {
+    rows.push(['Trainingstage in Phase', Math.min(st.cnt, st.minDays) + ' / ' + st.minDays]);
+    rows.push(['Kalendertage in Phase', Math.min(Math.max(st.calDay, 0), st.minCal) + ' / ' + st.minCal]);
+    rows.push(['Nächste Phase', 'Phase ' + (st.phase + 1) + ' · ' + PH[st.phase + 1].name + (started ? ', frühestens ' + deDate(st.nextAt) : '')]);
+  } else {
+    const nb = st.pStart + (Math.floor((st.at - st.pStart) / 28) + 1) * 28;
+    rows.push(['Block', (st.block ? 'Variation' : 'Standard') + ' · Wechsel ' + deDate(nb)]);
+  }
+  if (started) { const np = nextPhoto(st); rows.push(['Nächster Foto-Check', 'Tag ' + (np - st.start) + ' · ' + deDate(np)]); }
+  if (st.pending) rows.push(['Pause erkannt', st.pending.gap + ' Tage ohne Training → ' + (st.pending.type === 'back' ? 'zurück auf Phase ' + st.pending.to : 'Phase-Zähler startet neu')]);
+  $('prPhase').innerHTML = rows.map(r => `<li class="row"><span>${r[0]}</span><span class="meta">${r[1]}</span></li>`).join('');
+  // heatmap: 12 weeks x 7 days, Monday rows
+  const m0 = monIdx(st.at) - 11 * 7, done = new Set(st.days);
+  let h = '';
+  for (let r = 0; r < 7; r++) {
+    h += `<span class="wd">${['Mo', '', 'Mi', '', 'Fr', '', 'So'][r]}</span>`;
+    for (let c = 0; c < 12; c++) {
+      const i = m0 + c * 7 + r, cls = ['c'];
+      if (i > st.at) cls.push('fut'); else if (done.has(i)) cls.push('done'); else if (st.partDays.has(i)) cls.push('part');
+      if (started && i < st.start) cls.push('pre');
+      if (started && i > st.start && (i - st.start) % PHOTO_EVERY === 0) cls.push('photo');
+      if (i === st.at) cls.push('today');
+      h += `<span class="${cls.join(' ')}" data-d="${fromIdx(i)}" title="${deDate(i)}"></span>`;
+    }
+  }
+  $('heat').innerHTML = h;
+  // override chips
+  const ov = $('ovr'); ov.innerHTML = '';
+  ov.appendChild(chip('Auto', !st.override, () => { store.set('override', null); renderProgress(); }));
+  for (let n = 1; n <= 5; n++) ov.appendChild(chip(String(n), st.override === n, () => { store.set('override', n); renderProgress(); }));
+  $('ovrInfo').textContent = st.override ? 'Manuell auf Phase ' + st.override + ' festgelegt. „Auto“ folgt wieder deinen Trainingstagen.' : 'Automatisch: Fortschritt nach erledigten Trainingstagen und Wochen, nicht nach Datum allein.';
+  $('startDate').value = started ? fromIdx(st.start) : '';
+  $('startDate').max = fromIdx(st.at);
+  // history
+  const log = getLog().slice(-8).reverse();
+  $('hist').innerHTML = log.length ? log.map(e => `<li class="row"><span>${deDate(dIdx(e.d))} · Phase ${e.ph}${e.var ? ' · Variation' : ''}</span><span class="meta">${e.st === 'completed' ? 'komplett' : 'teilweise'} · ${fmt(e.dur || 0)}</span></li>`).join('')
+    : '<li class="row"><span class="meta" style="text-align:left">Noch keine Einheiten.</span></li>';
+  // storage note
+  const inst = isInstalled();
+  checkPersist().then(v => {
+    $('storeNote').textContent = 'Daten liegen nur auf diesem Gerät. ' + (v === true ? 'Speicher ist geschützt. ' : '') +
+      (inst ? 'App ist installiert. ' : 'iPhone: Safari kann Daten nicht installierter Seiten nach einigen Wochen ohne Besuch löschen. Über Teilen → „Zum Home-Bildschirm“ installieren. ') +
+      'Ab und zu exportieren, um eine Sicherung zu haben.';
+  });
+}
+function exportData() {
+  return {app: 'haltungstrainer', v: 1, exported: NOW().toISOString(), start: store.get('start', null), log: getLog(),
+          settings: {plank: S.plank, voice: S.voice, sound: S.sound, theme: S.theme, override: store.get('override', null)}};
+}
+function importData(obj) {
+  if (!obj || obj.app !== 'haltungstrainer' || !Array.isArray(obj.log)) throw new Error('Keine gültige Haltungstrainer-Sicherung.');
+  const ok = obj.log.filter(e => e && /^\d{4}-\d\d-\d\d$/.test(e.d) && (e.st === 'completed' || e.st === 'partial'));
+  const cur = getLog(), seen = new Set(cur.map(e => e.ts + '|' + e.d));
+  let added = 0; ok.forEach(e => { const k = e.ts + '|' + e.d; if (!seen.has(k)) { cur.push(e); seen.add(k); added++; } });
+  cur.sort((a, b) => (a.d + (a.ts || '')).localeCompare(b.d + (b.ts || '')));
+  store.set('log', cur);
+  const a = store.get('start', null), b = obj.start && /^\d{4}-\d\d-\d\d$/.test(obj.start) ? obj.start : null;
+  if (a || b) store.set('start', [a, b].filter(Boolean).sort()[0]);
+  if (obj.settings && obj.settings.override !== undefined && store.get('override', null) === null) store.set('override', obj.settings.override);
+  return added;
+}
+$('expBtn').onclick = async () => {
+  const data = JSON.stringify(exportData(), null, 1), name = 'haltungstrainer-' + ymd(NOW()) + '.json';
+  const blob = new Blob([data], {type: 'application/json'});
+  try {
+    const file = new File([blob], name, {type: 'application/json'});
+    if (navigator.canShare && navigator.canShare({files: [file]}) && /iPhone|iPad|Android/i.test(navigator.userAgent)) { await navigator.share({files: [file], title: 'Haltungstrainer-Sicherung'}); log('export', {via: 'share'}); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  log('export', {via: 'download', n: getLog().length});
+};
+$('impBtn').onclick = () => $('impFile').click();
+$('impFile').onchange = e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  f.text().then(t => {
+    const n = importData(JSON.parse(t));
+    log('import', {added: n}); alert(n + ' Einheiten importiert.'); renderProgress();
+  }).catch(err => alert('Import fehlgeschlagen: ' + err.message)).finally(() => { e.target.value = ''; });
+};
+$('startDate').onchange = e => {
+  const v = e.target.value; if (!/^\d{4}-\d\d-\d\d$/.test(v)) return;
+  if (dIdx(v) > todayIdx()) { e.target.value = fromIdx(program().start); return; }
+  store.set('start', v); renderProgress();
+};
+$('progBtn').onclick = () => { renderProgress(); show('prog'); };
+$('doneProg').onclick = () => { renderProgress(); show('prog'); };
+$('progBack').onclick = () => { renderStart(); show('start'); };
+
+window.__app = {S, buildPlan, planTotal, VC, program, PH, getLog, exportData, importData, renderProgress, renderStart, dIdx, fromIdx};
 loadClips();
 renderStart();
 })();

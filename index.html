@@ -130,6 +130,23 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
 .datein{font:inherit;color:var(--text);background:transparent;border:1px solid var(--line-strong);border-radius:10px;padding:8px 10px;min-height:40px}
 .hist .row{min-height:48px;padding:10px 0;font-size:14px}
 .done{justify-content:center}
+.feel{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:24px}
+.feel span{font-size:12px;line-height:16px;padding:4px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.feel span i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.feel .s{background:rgba(31,181,214,.14);color:#147f97} .feel .s i{background:#1fb5d6;box-shadow:0 0 6px #1fb5d6}
+.feel .w{background:rgba(255,122,26,.14);color:#b4540c} .feel .w i{background:#ff7a1a;box-shadow:0 0 6px #ff7a1a}
+[data-theme=dark] .feel .s{color:#6fd6ec} [data-theme=dark] .feel .w{color:#ffab6b}
+.banner.safe{background:transparent;box-shadow:inset 0 0 0 1px var(--line-strong)}
+.banner details summary{cursor:pointer;font-weight:600;color:var(--accent);list-style:none}
+.banner details p{margin:8px 0 0}
+.banner .btn{margin-top:10px}
+.pain{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin:6px 0 4px;width:100%;max-width:420px}
+.pain .chip{min-height:40px;font-size:14px;padding:0}
+.painlbl{font-size:13px;color:var(--muted);margin-top:18px}
+.pchart{display:flex;align-items:flex-end;gap:4px;height:84px;margin-top:8px;border-bottom:1px solid var(--line)}
+.pchart div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10px;color:var(--muted)}
+.pchart b{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--ok);min-height:2px}
+.pchart b.mid{background:var(--warn)} .pchart b.hi{background:var(--danger)}
 .done .big{font-size:44px;line-height:1.05;color:var(--accent)}
 .done p{color:var(--muted);font-size:15px;margin:4px 0 24px}
 .done .btn+.btn{margin-top:8px}
@@ -151,6 +168,8 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
   <div id="banners"></div>
   <div class="label">Optionen</div>
   <div class="list">
+    <label class="row">Schulter rechts (chronisch)<span class="sw"><input type="checkbox" id="optSh"><span></span></span></label>
+    <div class="row" id="shStageRow"><span>Arm-Höhe</span><span class="chips c2" id="shStage" style="grid-template-columns:1fr 1fr;width:62%"></span></div>
     <label class="row">Plank statt Dead Bug<span class="sw"><input type="checkbox" id="optPlank"><span></span></span></label>
     <label class="row">Sprachansagen<span class="sw"><input type="checkbox" id="optVoice" checked><span></span></span></label>
     <label class="row">Töne<span class="sw"><input type="checkbox" id="optSound" checked><span></span></span></label>
@@ -162,7 +181,7 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
   <div class="startbar">
     <button class="btn primary" id="playBtn" aria-label="Start">Start</button>
     <div class="total" id="total"></div>
-    <div class="note">iPhone: Lautlos-Schalter aus, damit Ansagen hörbar sind. Bei Schmerzen, Taubheit oder Schwindel abbrechen.</div>
+    <div class="note">iPhone: Lautlos-Schalter aus, damit Ansagen hörbar sind. Bei Taubheit, Kribbeln, Schwäche im Arm oder Schwindel abbrechen.</div>
   </div>
 </section>
 <!-- RUN -->
@@ -176,6 +195,7 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
   <div class="media"><img id="gif" alt=""><div class="badge" id="badge">Los</div></div>
   <div class="name" id="exName"></div>
   <div class="side" id="exSide"></div>
+  <div class="feel" id="exFeel" aria-label="Wo spürst du es"></div>
   <div class="cue" id="exCue"></div>
   <div class="clock">
     <div class="big" id="big">0</div>
@@ -209,6 +229,11 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
   <div class="label">Letzte 12 Wochen</div>
   <div class="heat" id="heat"></div>
   <div class="legend"><span><i style="background:var(--accent)"></i>Trainiert</span><span><i style="background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)"></i>Teilweise</span><span><i style="box-shadow:inset 0 0 0 2px var(--warn);background:transparent"></i>Foto-Check</span></div>
+  <div id="shSec">
+  <div class="label">Schulter rechts (Schmerz 0–10 nach dem Training)</div>
+  <div class="pchart" id="pchart"></div>
+  <ul class="list" id="shRows"></ul>
+  </div>
   <div class="label">Phase wählen</div>
   <div class="chips c6" id="ovr" role="radiogroup" aria-label="Phase"></div>
   <div class="wkinfo" id="ovrInfo"></div>
@@ -230,6 +255,11 @@ h1{font-size:20px;line-height:26px;letter-spacing:-.01em;font-weight:500;margin:
 <section class="screen done" id="done">
   <div class="big" id="doneBig">Geschafft</div>
   <p id="doneTxt"></p>
+  <div id="painBox" style="display:none;width:100%;flex-direction:column;align-items:center">
+    <div class="painlbl">Schulter rechts jetzt (0 = nichts, 10 = maximal)</div>
+    <div class="pain" id="painChips" role="radiogroup" aria-label="Schmerz 0 bis 10"></div>
+    <div class="note" id="painNote"></div>
+  </div>
   <button class="btn primary" id="againBtn">Nochmal</button>
   <button class="btn ghost" id="homeBtn">Zur Übersicht</button>
   <button class="btn ghost" id="doneProg">Fortschritt ansehen</button>
@@ -260,6 +290,34 @@ EX.yraise = {name: 'Y-Heben in Bauchlage', gif: 'prone_y_raise', cue: 'Arme schr
 EX.hipr = {name: 'Hüftbeuger-Dehnung mit Arm hoch', gif: 'hip_flexor_reach', cue: 'Becken einrollen, Po anspannen. Arm auf der Seite des unteren Knies gerade nach oben strecken, dann Hüfte leicht nach vorn.', prep: 'In den Halbkniestand gehen.'};
 EX.march = {name: 'Beckenheben mit Marschieren', gif: 'bridge_march', cue: 'Becken oben halten. Abwechselnd ein Knie anheben, bis der Oberschenkel senkrecht steht. Becken bleibt gerade und kippt nicht.', prep: 'Auf den Rücken legen, Knie anstellen, Becken heben.'};
 
+// shoulder module (chronic right subacromial pain / bursitis) – see technique-spec.md §11–16
+EX.doorl = {name: 'Brustdehnung tief (Ellbogen unten)', gif: 'doorway_low', cue: 'Ellbogen deutlich unter Schulterhöhe an den Rahmen. Sanft nach vorn lehnen, nur bis zu leichtem Ziehen. Rechts nur so weit, wie es nicht sticht.', prep: 'Stell dich in einen Türrahmen.'};
+EX.walll = {name: 'Wandengel unter Schulterhöhe', gif: 'wall_angels_low', cue: 'Rücken und Po an der Wand. Arme nur bis knapp unter Schulterhöhe gleiten lassen, Schultern bleiben unten.', prep: 'Mit dem Rücken an eine Wand stellen.'};
+EX.er = {name: 'Außenrotation mit Band (rechts)', gif: 'er_band', cue: 'Ellbogen am Körper auf einer Handtuchrolle, 90 Grad gebeugt. Unterarm nach außen drehen, dann 3 Sekunden langsam zurück.', prep: 'Band seitlich links auf Ellbogenhöhe befestigen, rechte Hand greift. Handtuch zwischen Ellbogen und Rumpf.'};
+EX.row = {name: 'Rudern mit Band', gif: 'band_row', cue: 'Ellbogen nah am Körper nach hinten ziehen, Schulterblätter nach hinten unten. Schultern nicht hochziehen.', prep: 'Band vorne auf Brusthöhe befestigen, beide Enden greifen.'};
+EX.cross = {name: 'Querdehnung hintere Schulter (rechts)', gif: 'cross_body', cue: 'Rechten Arm knapp unter Schulterhöhe vor der Brust zur Gegenseite ziehen. Sanft, kein Stechen vorn in der Schulter.', prep: 'Aufrecht stehen. Linke Hand greift den rechten Arm über dem Ellbogen.'};
+EX.thor = {name: 'Brustwirbel-Streckung am Stuhl', gif: 'thoracic_ext', cue: 'Arme vor der Brust kreuzen. Oberen Rücken über die Lehne nach hinten strecken, Kinn leicht eingezogen, Kopf nicht in den Nacken.', prep: 'Auf einen Stuhl mit fester Lehne setzen, Po ganz nach hinten.'};
+// "Wo spürst du es": s = Dehnung (cyan), w = Arbeit (orange); say = optional voice line
+const FEEL = {
+  chin: [['w', 'Vorne am Hals'], ['s', 'Nacken hinten oben'], 'Spüren: Arbeit vorne am Hals, Dehnung im oberen Nacken.'],
+  door: [['s', 'Brust & vordere Schulter'], 'Spüren: Dehnung quer über die Brust.'],
+  doorl: [['s', 'Brust, unterer Teil'], 'Spüren: Dehnung quer über die Brust.'],
+  wall: [['w', 'Zwischen den Schulterblättern'], ['s', 'Brust'], 'Spüren: Arbeit zwischen den Schulterblättern.'],
+  walll: [['w', 'Zwischen den Schulterblättern'], ['s', 'Brust'], 'Spüren: Arbeit zwischen den Schulterblättern.'],
+  hip: [['s', 'Leiste vorne (unteres Knie)'], 'Spüren: Dehnung vorne an der Hüfte des unteren Beins.'],
+  hipr: [['s', 'Leiste vorne (unteres Knie)'], ['s', 'Rumpfseite'], 'Spüren: Dehnung vorne an der Hüfte und an der Rumpfseite.'],
+  bridge: [['w', 'Po'], 'Spüren: Arbeit im Po, nicht im unteren Rücken.'],
+  march: [['w', 'Po'], 'Spüren: Arbeit im Po, nicht im unteren Rücken.'],
+  bug: [['w', 'Tiefe Bauchmuskeln'], 'Spüren: Arbeit tief im Bauch, der Rücken bleibt ruhig.'],
+  plank: [['w', 'Tiefe Bauchmuskeln'], 'Spüren: Arbeit tief im Bauch, der Rücken bleibt ruhig.'],
+  yraise: [['w', 'Unter den Schulterblättern'], 'Spüren: Arbeit unter und zwischen den Schulterblättern.'],
+  er: [['w', 'Hinten an der rechten Schulter'], 'Spüren: Arbeit hinten an der Schulter.'],
+  row: [['w', 'Zwischen den Schulterblättern'], 'Spüren: Arbeit zwischen den Schulterblättern.'],
+  cross: [['s', 'Hinten an der rechten Schulter'], 'Spüren: sanfte Dehnung hinten an der Schulter.'],
+  thor: [['s', 'Oberer Rücken'], 'Spüren: Streckung im oberen Rücken.']
+};
+Object.keys(FEEL).forEach(k => { const f = FEEL[k]; EX[k].feel = f.filter(x => Array.isArray(x)); EX[k].feelSay = f.find(x => typeof x === 'string'); });
+
 // ---------------------------------------------------------------- program: phases (see research-progression.md)
 // advance when BOTH: enough completed training days in the phase AND enough calendar days in the phase
 const PH = [null,
@@ -273,7 +331,8 @@ const GAP_RESET = 10, GAP_BACK1 = 21, GAP_BACK2 = 56;   // missed days -> restar
 const PHOTO_EVERY = 14;
 
 // rep phases: [label, seconds] ; soft tick at each phase change after the first
-function buildPlan(phase, plank, block) {
+function buildPlan(phase, plank, block, sh) {
+  sh = sh || {on: false};
   phase = Math.max(1, Math.min(5, phase | 0 || 1));
   const L = Math.min(phase, 3);                                   // load level 1..3 (phase 4/5 keep level 3)
   const varied = phase === 4 || (phase === 5 && block === 1);     // variation block
@@ -290,14 +349,31 @@ function buildPlan(phase, plank, block) {
   // 1 chin tuck (deep neck flexors) – same exercise every phase, longer hold from phase 3
   prep('chin', 15, {first: true});
   reps('chin', 10, [['Zurück schieben', 1], ['Halten', slow ? 5 : 3], ['Lösen', 1]]);
-  // 2 doorway pec stretch
-  prep('door', 15);
-  timed('door', hold, {set: '1/2'});
-  prep('door', 10, {set: '2/2', say: 'Kurz lockern. Gleich Satz 2.'});
-  timed('door', hold, {set: '2/2'});
-  // 3 scapular pattern: wall angels -> prone Y raise (variation)
-  if (varied) { prep('yraise', 15); reps('yraise', 10, [['Hoch', 2], ['Halten', 2], ['Runter', 2]]); }
+  // 2 doorway pec stretch (shoulder module: stage 1 = low elbows, 1 set; heights progress with the stage)
+  const low = sh.on && sh.stage < 2;
+  const dx = low ? 'doorl' : 'door';
+  if (sh.on) { prep(dx, 15); timed(dx, hold); }
+  else {
+    prep('door', 15);
+    timed('door', hold, {set: '1/2'});
+    prep('door', 10, {set: '2/2', say: 'Kurz lockern. Gleich Satz 2.'});
+    timed('door', hold, {set: '2/2'});
+  }
+  // 3 scapular pattern: wall angels -> prone Y raise (variation); shoulder stage 1 stays below shoulder height
+  if (low) { prep('walll', 15); reps('walll', slow ? 12 : 10, [['Hoch', 3], ['Runter', 3]]); }
+  else if (varied) { prep('yraise', 15); reps('yraise', 10, [['Hoch', 2], ['Halten', 2], ['Runter', 2]]); }
   else { prep('wall', 15); reps('wall', slow ? 12 : 10, [['Hoch', 3], ['Runter', 3]]); }
+  // 3b shoulder module: progressive loading, alternating day A (cuff + posterior stretch) / day B (row + thoracic extension)
+  if (sh.on) {
+    const ssets = L >= 2 ? 2 : 1;
+    if (!sh.dayB) {
+      setLoop(ssets, (s, x) => { prep('er', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); reps('er', 12, [['Nach außen', 2], ['Langsam zurück', 3]], x); });
+      prep('cross', 15); timed('cross', 30);
+    } else {
+      setLoop(ssets, (s, x) => { prep('row', s === 1 ? 15 : 10, Object.assign({say: pause(s)}, x)); reps('row', 12, [['Ziehen', 2], ['Halten', 1], ['Zurück', 2]], x); });
+      prep('thor', 15); reps('thor', 8, [['Strecken', 3], ['Zurück', 2]]);
+    }
+  }
   // 4 hip flexor stretch (variation adds the overhead reach)
   const hx = varied ? 'hipr' : 'hip';
   prep(hx, 15, {side: 'Linkes Knie unten', sideKey: 'L'});
@@ -321,7 +397,7 @@ function buildPlan(phase, plank, block) {
   }
   P.forEach(p => { if (p.say === null) delete p.say; });
   const order = []; P.forEach(p => { if (!order.includes(p.ex)) order.push(p.ex); p.exNo = order.indexOf(p.ex) + 1; });
-  P.nEx = order.length; P.phase = phase; P.varied = varied;
+  P.nEx = order.length; P.phase = phase; P.varied = varied; P.sh = sh.on ? (sh.dayB ? 'B' : 'A') + sh.stage : '';
   return P;
 }
 const fmt = s => { s = Math.round(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
@@ -334,6 +410,7 @@ const store = {
 };
 const S = {theme: store.get('theme', 'system'), plank: store.get('plank', false), voice: store.get('voice', true), sound: store.get('sound', true),
            plan: [], idx: 0, el: 0, running: false, paused: false, last: 0, timer: null, startedAt: 0, doneSec: 0, sess: null};
+S.sh = store.get('sh', true); S.shStage = store.get('shStage', 1);
 store.set('week', null); try { localStorage.removeItem('pt_week'); } catch (e) {}
 
 // ---------------------------------------------------------------- dates (local calendar days; fake clock: ?now=YYYY-MM-DD or window.__now)
@@ -392,10 +469,21 @@ function program(at) {
           calDay: at - effStart + 1, nextAt: earliestDone === null ? null : earliestDone + 1, pending, events: ev, days, partDays, doneToday,
           streak, week, target: PH[use].target, total: days.length, sessions: log.length, dayNo: at - s0 + 1, weekNo: Math.floor((at - s0) / 7) + 1};
 }
+// ---------------------------------------------------------------- shoulder: pain log + stage suggestion (never automatic)
+const SH_UNLOCK = 6;   // consecutive rated sessions with pain <= 3/10 before full height is *offered*
+function shState() {
+  const log = getLog(), rated = log.filter(e => typeof e.pain === 'number');
+  const shN = log.filter(e => e.sh).length;
+  const last = rated.slice(-SH_UNLOCK);
+  let run = 0; for (let i = rated.length - 1; i >= 0 && rated[i].pain <= 3; i--) run++;
+  const lastP = rated.length ? rated[rated.length - 1].pain : null;
+  return {stage: S.shStage, dayB: shN % 2 === 1, rated, run, lastP,
+          offer: S.shStage < 2 && run >= SH_UNLOCK, flare: lastP !== null && lastP >= 6};
+}
 function nextPhoto(st) { const k = Math.max(1, Math.ceil((st.at - st.start) / PHOTO_EVERY)); return st.start + k * PHOTO_EVERY; }
 function logSession(status) {
   const t = NOW(), d = ymd(t), st = S.sess || {};
-  const e = {d, ts: t.toISOString(), ph: st.phase || 1, blk: st.block || 0, var: !!st.varied, plank: !!st.plank, st: status,
+  const e = {d, ts: t.toISOString(), ph: st.phase || 1, blk: st.block || 0, var: !!st.varied, plank: !!st.plank, st: status, sh: st.sh || '',
              dur: Math.round(S.doneSec), plan: Math.round(planTotal(S.plan))};
   const log = getLog(); log.push(e); store.set('log', log);
   if (!store.get('start', null)) store.set('start', d);
@@ -441,19 +529,38 @@ function renderStart() {
     if ((st.sessions > 0 || st.startSet) && (st.at - st.start) > 0 && (st.at - st.start) % PHOTO_EVERY === 0) bn.push(`<b>Heute Foto-Check (Tag ${st.at - st.start}).</b> Seitlich fotografieren: gleiche Stelle, gleiche Kamerahöhe, entspannt stehen. Mit dem Foto vom Start vergleichen.`);
     else if (st.sessions === 0 || st.at === st.start) bn.push('<b>Tag 0: Ausgangsfoto.</b> Einmal seitlich fotografieren (entspannt, Kamera auf Hüfthöhe). Alle 14 Tage wiederholen.');
   }
-  $('banners').innerHTML = bn.map(h => `<div class="banner">${h}</div>`).join('');
+  if (S.sh) {
+    const ss = shState();
+    if (ss.flare) bn.push(`<b>Schulter zuletzt ${ss.lastP}/10.</b> Wenn sie heute früh schlechter ist als vorher: heute kleinere Bewegungsweite und nur 1 Satz. Ist sie wieder auf dem alten Stand, normal weitermachen.`);
+    if (ss.offer) bn.push(`<b>${ss.run} Einheiten in Folge mit Schulter ≤ 3/10.</b> Du kannst die Übergangsstufe probieren: Wandengel und Brustdehnung auf voller Höhe (ab Phase 4 auch Y-Heben). Nur wenn du willst – zurück geht jederzeit.<br><button class="btn ghost sm" id="shUp">Volle Höhe probieren</button>`);
+    bn.push(`<details><summary>Schulter rechts (chronisch): so dosierst du</summary>
+      <p>Bei einer seit Jahren bestehenden Schleimbeutel-/Engpass-Problematik ist dosierte Belastung die Therapie: Kraft für Rotatorenmanschette und Schulterblatt, dazu Beweglichkeit.</p>
+      <p><b>Schmerz-Ampel:</b> Während der Übung ist Schmerz bis etwa 5/10 in Ordnung, wenn er innerhalb von 24 Stunden abklingt und die Schulter am nächsten Morgen nicht schlechter ist. Sonst beim nächsten Mal weniger Weite oder Wiederholungen.</p>
+      <p><b>Nicht erzwingen:</b> Nicht in scharfen, stechenden Schmerz hineindrücken und keine Dehnung mit Gewalt in die Endstellung. Bei einem Engpass reizt das den Schleimbeutel eher, als dass es hilft.</p>
+      <p><b>Sofort stoppen</b> und ärztlich abklären bei Kribbeln, Taubheit oder Schwäche, die in den Arm ausstrahlt (wegen des früheren Bandscheibenvorfalls an der Halswirbelsäule).</p>
+      <p>Keine medizinische Beratung. Im Zweifel mit Ärztin/Arzt oder Physiotherapie absprechen.</p></details>`);
+  }
+  $('banners').innerHTML = bn.map(h => `<div class="banner${h.startsWith('<details') ? ' safe' : ''}">${h}</div>`).join('');
+  const up = $('shUp'); if (up) up.onclick = () => { S.shStage = 2; store.set('shStage', 2); log('sh-stage', {to: 2}); renderStart(); };
   $('optPlank').checked = S.plank; $('optVoice').checked = S.voice; $('optSound').checked = S.sound;
-  const P = buildPlan(st.use, S.plank, st.block);
+  $('optSh').checked = S.sh; $('shStageRow').style.display = S.sh ? '' : 'none';
+  const sg = $('shStage'); sg.innerHTML = '';
+  [[1, 'Unter Schulter'], [2, 'Volle Höhe']].forEach(([k, l]) => sg.appendChild(chip(l, S.shStage === k, () => { S.shStage = k; store.set('shStage', k); log('sh-stage', {to: k}); renderStart(); })));
+  const P = buildPlan(st.use, S.plank, st.block, shArg());
   const per = {}; P.forEach(p => { if (p.kind === 'work') { const o = per[p.ex] || (per[p.ex] = {n: 0, w: p}); o.n++; } });
   const desc = k => {
     const o = per[k], w = o.w;
     if (k === 'hip' || k === 'hipr') return w.dur + ' s pro Seite';
+    if (k === 'er' || k === 'cross') return (o.n > 1 ? o.n + ' × ' : '') + (w.reps ? w.reps + ' Wdh.' : w.dur + ' s') + ' rechts';
     if (w.reps) return (o.n > 1 ? o.n + ' × ' : '') + (w.alt ? (w.reps / 2) + ' pro Seite' : w.reps + ' Wdh.');
     return (o.n > 1 ? o.n + ' × ' : '') + w.dur + ' s';
   };
   $('plist').innerHTML = Object.keys(per).map((k, i) => `<li class="row"><span>${i + 1}. ${EX[k].name}</span><span class="meta">${desc(k)}</span></li>`).join('');
+  if (S.sh) $('plist').insertAdjacentHTML('beforeend', `<li class="row"><span class="meta" style="text-align:left">Schulter-Tag ${P.sh[0]}: ${P.sh[0] === 'A' ? 'Außenrotation + Querdehnung' : 'Rudern + Brustwirbel-Streckung'} (wechselt jede Einheit)</span></li>`);
   $('total').textContent = 'Dauer inkl. Wechselpausen: ca. ' + Math.round(planTotal(P) / 60) + ' Min.';
 }
+function shArg() { if (!S.sh) return {on: false}; const ss = shState(); return {on: true, stage: S.shStage, dayB: ss.dayB}; }
+$('optSh').onchange = e => { S.sh = e.target.checked; store.set('sh', S.sh); renderStart(); };
 $('optPlank').onchange = e => { S.plank = e.target.checked; store.set('plank', S.plank); renderStart(); };
 $('optVoice').onchange = e => { S.voice = e.target.checked; store.set('voice', S.voice); if (!S.voice) stopVoice(); updMute(); };
 $('optSound').onchange = e => { S.sound = e.target.checked; store.set('sound', S.sound); updMute(); };
@@ -562,6 +669,7 @@ function enterStep(i) {
   $('exName').textContent = (p.kind === 'prep' ? 'Gleich: ' : '') + ex.name;
   $('exSide').textContent = [p.side, p.set ? 'Satz ' + p.set : ''].filter(Boolean).join(' · ');
   $('exCue').textContent = p.kind === 'prep' ? ex.prep + ' ' + ex.cue : ex.cue;
+  $('exFeel').innerHTML = (ex.feel || []).map(([k, t]) => `<span class="${k}"><i></i>${k === 's' ? 'Dehnung' : 'Arbeit'}: ${t}</span>`).join('');
   $('badge').textContent = p.kind === 'prep' ? 'Vorbereiten' : 'Los';
   $('badge').className = 'badge' + (p.kind === 'prep' ? ' prep' : '');
   $('sbarW').className = 'sbar' + (p.kind === 'prep' ? ' prep' : '');
@@ -577,6 +685,7 @@ function enterStep(i) {
       else if (w) t += ' ' + w.dur + ' Sekunden halten.';
     }
     say(t, true);
+    if (ex.feelSay && !p.say) say(ex.feelSay, false);
   } else {
     SND.go();
     if (p.reps) { SND.rep(); say('1', true); log('rep', {n: 1, of: p.reps}); }
@@ -596,6 +705,15 @@ function finish() {
   t += 'Diese Woche ' + st.week + '/' + st.target + '.';
   $('doneTxt').textContent = t;
   $('doneBig').textContent = st.streak > 1 ? st.streak + ' Tage in Folge' : 'Geschafft';
+  $('painBox').style.display = S.sh ? 'flex' : 'none';
+  if (S.sh) {
+    const pc = $('painChips'); pc.innerHTML = ''; $('painNote').textContent = 'Morgen früh kurz prüfen: nicht schlechter als vorher? Dann passt die Dosis.';
+    for (let v = 0; v <= 10; v++) pc.appendChild(chip(String(v), false, () => {
+      const l = getLog(); if (!l.length) return; l[l.length - 1].pain = v; store.set('log', l); log('pain', {v});
+      [...pc.children].forEach((c, i) => { c.classList.toggle('sel', i === v); c.setAttribute('aria-checked', i === v); });
+      $('painNote').textContent = v <= 5 ? 'Gespeichert. Bis 5/10 ist okay, wenn es bis morgen abklingt.' : 'Gespeichert. Über 5/10: nächstes Mal weniger Weite oder nur 1 Satz. Strahlt etwas in den Arm aus (Kribbeln, Taubheit, Schwäche), abklären lassen.';
+    }));
+  }
   show('done');
 }
 function advance(prev, now) {
@@ -657,8 +775,8 @@ function render() {
 function start() {
   unlockAudio();
   const st = program();
-  S.plan = buildPlan(st.use, S.plank, st.block);
-  S.sess = {phase: st.use, block: st.block, varied: S.plan.varied, plank: S.plank}; S.doneSec = 0;
+  S.plan = buildPlan(st.use, S.plank, st.block, shArg());
+  S.sess = {phase: st.use, block: st.block, varied: S.plan.varied, plank: S.plank, sh: S.plan.sh}; S.doneSec = 0;
   S.running = false; S.paused = false; clearInterval(S.timer);
   setPauseLbl(); updMute(); show('run'); wake();
   enterPreview();
@@ -730,6 +848,18 @@ function renderProgress() {
   if (started) { const np = nextPhoto(st); rows.push(['Nächster Foto-Check', 'Tag ' + (np - st.start) + ' · ' + deDate(np)]); }
   if (st.pending) rows.push(['Pause erkannt', st.pending.gap + ' Tage ohne Training → ' + (st.pending.type === 'back' ? 'zurück auf Phase ' + st.pending.to : 'Phase-Zähler startet neu')]);
   $('prPhase').innerHTML = rows.map(r => `<li class="row"><span>${r[0]}</span><span class="meta">${r[1]}</span></li>`).join('');
+  // shoulder pain log
+  $('shSec').style.display = S.sh || getLog().some(e => typeof e.pain === 'number') ? '' : 'none';
+  {
+    const ss = shState(), r = ss.rated.slice(-14);
+    $('pchart').innerHTML = r.length ? r.map(e => `<div><span>${e.pain}</span><b class="${e.pain >= 6 ? 'hi' : e.pain >= 4 ? 'mid' : ''}" style="height:${Math.max(2, e.pain * 6)}px"></b></div>`).join('')
+      : '<div style="align-items:flex-start;justify-content:center">Noch keine Werte. Nach jeder Einheit 0–10 antippen.</div>';
+    const rows2 = [['Stufe', S.shStage === 2 ? 'Volle Höhe (Übergang)' : 'Unter Schulterhöhe'],
+      ['Letzter Wert', ss.lastP === null ? '–' : ss.lastP + '/10'],
+      ['Serie ≤ 3/10', ss.run + (S.shStage < 2 ? ' / ' + SH_UNLOCK + ' für Übergangsangebot' : '')],
+      ['Nächster Schulter-Tag', ss.dayB ? 'B · Rudern + Brustwirbel' : 'A · Außenrotation + Querdehnung']];
+    $('shRows').innerHTML = rows2.map(r => `<li class="row"><span>${r[0]}</span><span class="meta">${r[1]}</span></li>`).join('');
+  }
   // heatmap: 12 weeks x 7 days, Monday rows
   const m0 = monIdx(st.at) - 11 * 7, done = new Set(st.days);
   let h = '';
@@ -754,7 +884,7 @@ function renderProgress() {
   $('startDate').max = fromIdx(st.at);
   // history
   const log = getLog().slice(-8).reverse();
-  $('hist').innerHTML = log.length ? log.map(e => `<li class="row"><span>${deDate(dIdx(e.d))} · Phase ${e.ph}${e.var ? ' · Variation' : ''}</span><span class="meta">${e.st === 'completed' ? 'komplett' : 'teilweise'} · ${fmt(e.dur || 0)}</span></li>`).join('')
+  $('hist').innerHTML = log.length ? log.map(e => `<li class="row"><span>${deDate(dIdx(e.d))} · Phase ${e.ph}${e.var ? ' · Variation' : ''}</span><span class="meta">${e.st === 'completed' ? 'komplett' : 'teilweise'} · ${fmt(e.dur || 0)}${typeof e.pain === 'number' ? ' · Schulter ' + e.pain + '/10' : ''}</span></li>`).join('')
     : '<li class="row"><span class="meta" style="text-align:left">Noch keine Einheiten.</span></li>';
   // storage note
   const inst = isInstalled();
@@ -766,7 +896,7 @@ function renderProgress() {
 }
 function exportData() {
   return {app: 'haltungstrainer', v: 1, exported: NOW().toISOString(), start: store.get('start', null), log: getLog(),
-          settings: {plank: S.plank, voice: S.voice, sound: S.sound, theme: S.theme, override: store.get('override', null)}};
+          settings: {plank: S.plank, voice: S.voice, sound: S.sound, theme: S.theme, override: store.get('override', null), sh: S.sh, shStage: S.shStage}};
 }
 function importData(obj) {
   if (!obj || obj.app !== 'haltungstrainer' || !Array.isArray(obj.log)) throw new Error('Keine gültige Haltungstrainer-Sicherung.');
@@ -808,7 +938,7 @@ $('progBtn').onclick = () => { renderProgress(); show('prog'); };
 $('doneProg').onclick = () => { renderProgress(); show('prog'); };
 $('progBack').onclick = () => { renderStart(); show('start'); };
 
-window.__app = {S, buildPlan, planTotal, VC, program, PH, getLog, exportData, importData, renderProgress, renderStart, dIdx, fromIdx};
+window.__app = {S, shState, shArg, FEEL, buildPlan, planTotal, VC, program, PH, getLog, exportData, importData, renderProgress, renderStart, dIdx, fromIdx};
 loadClips();
 renderStart();
 })();
